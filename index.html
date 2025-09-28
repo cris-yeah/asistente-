@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eros - Chat Inteligente</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a2980 0%, #26d0ce 100%);
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 30px;
+            max-width: 750px;
+            width: 100%;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            height: 90vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 15px;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .logo-container {
+            width: 70px;
+            height: 70px;
+            margin: 0 auto 10px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            padding: 8px;
+        }
+
+        h1 {
+            font-size: 2em;
+            font-weight: 300;
+            margin-bottom: 3px;
+            color: white;
+        }
+
+        .subtitle {
+            font-size: 0.9em;
+            opacity: 0.9;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .chat-box {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 16px;
+            padding: 20px;
+            flex: 1;
+            min-height: 0;
+            overflow-y: auto;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .message {
+            max-width: 85%;
+            padding: 10px 16px;
+            border-radius: 18px;
+            animation: messageAppear 0.4s ease-out;
+            line-height: 1.4;
+            font-size: 0.95em;
+        }
+
+        .user-message {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 5px;
+        }
+
+        .bot-message {
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            align-self: flex-start;
+            border-bottom-left-radius: 5px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .input-area {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-shrink: 0;
+            margin-bottom: 5px;
+        }
+
+        .text-input {
+            flex: 1;
+            padding: 14px 18px;
+            border: none;
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 0.95em;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .text-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .text-input:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .send-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1em;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .send-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .send-btn:active {
+            transform: scale(0.95);
+        }
+
+        .help-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 50%;
+            width: 38px;
+            height: 38px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .help-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+        .help-button .line {
+            width: 18px;
+            height: 2px;
+            background: white;
+            border-radius: 1px;
+        }
+
+        .help-panel {
+            position: absolute;
+            top: 55px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 15px;
+            width: 250px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            z-index: 100;
+            display: none;
+            animation: fadeIn 0.3s ease;
+            color: #333;
+        }
+
+        .help-panel.open {
+            display: block;
+        }
+
+        .help-title {
+            font-size: 1.1em;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: #1a2980;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+        }
+
+        .help-item {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            text-align: center;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .help-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .help-item:active {
+            transform: translateY(0);
+        }
+
+        .help-number {
+            font-size: 1.2em;
+            font-weight: 700;
+            margin-top: 5px;
+            display: block;
+        }
+
+        .support-message {
+            text-align: center;
+            font-size: 0.8em;
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 8px;
+            font-style: italic;
+            flex-shrink: 0;
+        }
+
+        @keyframes messageAppear {
+            from { opacity: 0; transform: translateY(20px) scale(0.9); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .chat-box::-webkit-scrollbar { width: 6px; }
+        .chat-box::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.1); border-radius: 3px; }
+        .chat-box::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.3); border-radius: 3px; }
+
+        @media (max-width: 600px) {
+            .container { 
+                padding: 15px; 
+                height: 95vh;
+            }
+            h1 { font-size: 1.7em; }
+            .message { max-width: 90%; }
+            .text-input { padding: 12px 16px; }
+            .help-panel { width: 220px; right: 5px; }
+            .chat-box {
+                padding: 15px;
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <button class="help-button" id="helpButton">
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+        </button>
+
+        <div class="help-panel" id="helpPanel">
+            <div class="help-title">Ayuda Psicológica Colombia</div>
+            <div class="help-item" onclick="copyNumber('106')">Línea de la Vida<span class="help-number">106</span></div>
+            <div class="help-item" onclick="copyNumber('018000112439')">Línea Púrpura<span class="help-number">018000112439</span></div>
+            <div class="help-item" onclick="copyNumber('018000522020')">Línea Amiga Bogotá<span class="help-number">018000522020</span></div>
+        </div>
+        
+        <div class="header">
+            <div class="logo-container">
+                <img src="logo.png" alt="Logo Eros" class="logo">
+            </div>
+            <h1>Eros</h1>
+            <p class="subtitle">Escribe tu mensaje y conversemos</p>
+        </div>
+        
+        <div class="chat-box" id="chatBox">
+            <div class="message bot-message">¡Hola! Soy Eros, tu asistente de apoyo emocional. ¿En qué puedo ayudarte hoy?</div>
+        </div>
+        
+        <div class="input-area">
+            <input type="text" class="text-input" id="textInput" placeholder="Escribe tu mensaje..." maxlength="500">
+            <button class="send-btn" onclick="sendMessage()">➤</button>
+        </div>
+        
+        <div class="support-message">Estoy aquí para ti. Si necesitas ayuda, no dudes en contactar los números de apoyo.</div>
+    </div>
+
+    <script>
+        const chatBox = document.getElementById('chatBox');
+        const textInput = document.getElementById('textInput');
+        const helpButton = document.getElementById('helpButton');
+        const helpPanel = document.getElementById('helpPanel');
+
+        // ✅ TU URL DE N8N INTEGRADA
+        const N8N_WEBHOOK_URL = 'https://cristian31150.app.n8n.cloud/webhook-test/03e4afb6-a518-41a5-9398-d9c5655d4128';
+
+        async function sendMessage() {
+            const message = textInput.value.trim();
+            if (message === '') return;
+            
+            // Mostrar mensaje del usuario
+            addMessage(message, 'user');
+            textInput.value = '';
+            
+            // Mostrar indicador de typing
+            showTypingIndicator();
+            
+            try {
+                console.log('Enviando mensaje a n8n:', message);
+                
+                // Enviar mensaje a n8n
+                const response = await fetch(N8N_WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: message,
+                        timestamp: new Date().toISOString(),
+                        user: 'usuario_web'
+                    })
+                });
+
+                console.log('Respuesta recibida, status:', response.status);
+
+                if (!response.ok) {
+                    throw new Error(Error HTTP: ${response.status});
+                }
+
+                const data = await response.json();
+                console.log('Datos recibidos:', data);
+                
+                // Ocultar indicador de typing
+                hideTypingIndicator();
+                
+                // Mostrar respuesta del bot - ajusta según la estructura de tu IA
+                const botResponse = data.response || data.message || data.answer || 
+                                   "Gracias por tu mensaje. Estoy procesando tu solicitud.";
+                
+                addMessage(botResponse, 'bot');
+                
+            } catch (error) {
+                console.error('Error en la conexión:', error);
+                hideTypingIndicator();
+                addMessage("Lo siento, hubo un error al conectar con el asistente. Por favor intenta nuevamente.", 'bot');
+            }
+        }
+
+        function addMessage(text, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = message ${sender}-message;
+            messageDiv.textContent = text;
+            chatBox.appendChild(messageDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function showTypingIndicator() {
+            const typingDiv = document.createElement('div');
+            typingDiv.id = 'typingIndicator';
+            typingDiv.className = 'message bot-message';
+            typingDiv.innerHTML = '<em>Eros está escribiendo...</em>';
+            typingDiv.style.opacity = '0.7';
+            typingDiv.style.fontStyle = 'italic';
+            chatBox.appendChild(typingDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function hideTypingIndicator() {
+            const typingDiv = document.getElementById('typingIndicator');
+            if (typingDiv) {
+                typingDiv.remove();
+            }
+        }
+
+        // Event listeners
+        textInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') sendMessage();
+        });
+
+        textInput.focus();
+
+        helpButton.addEventListener('click', function(e) {
+            e.stopPropagation();
+            helpPanel.classList.toggle('open');
+        });
+
+        function copyNumber(number) {
+            navigator.clipboard.writeText(number).then(function() {
+                addMessage(Número copiado al portapapeles: ${number}, 'bot');
+                helpPanel.classList.remove('open');
+            });
+        }
+
+        document.addEventListener('click', function() {
+            helpPanel.classList.remove('open');
+        });
+
+        helpPanel.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+    </script>
+</body>
+</html>
