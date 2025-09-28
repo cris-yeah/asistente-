@@ -1,4 +1,16 @@
-    <!DOCTYPE html>
+
+         
+          
+
+       
+
+      
+    
+      
+         
+        
+  
+ <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -336,68 +348,21 @@
         const textInput = document.getElementById('textInput');
         const helpButton = document.getElementById('helpButton');
         const helpPanel = document.getElementById('helpPanel');
-        
-        // URL del webhook de n8n
-        const n8nWebhookUrl = 'https://cristian31150.app.n8n.cloud/webhook/03e4afb6-a518-41a5-9398-d9c5655d4128';
-        
-        // Generar un ID de sesión único
-        const sessionId = 'eros_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
 
-        async function sendMessage() {
+        function sendMessage() {
             const message = textInput.value.trim();
             if (message === '') return;
-            
-            // Mostrar mensaje del usuario
             addMessage(message, 'user');
             textInput.value = '';
-            
-            // Mostrar indicador de que el bot está escribiendo
-            const typingIndicator = addMessage('Escribiendo...', 'bot');
-            
-            try {
-                // Enviar mensaje al webhook de n8n
-                const response = await fetch(n8nWebhookUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        message: message,
-                        sessionId: sessionId
-                    })
-                });
-                
-                // Eliminar el indicador de escritura
-                chatBox.removeChild(typingIndicator);
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    
-                    // Mostrar la respuesta del bot
-                    if (data.response) {
-                        addMessage(data.response, 'bot');
-                    } else {
-                        addMessage('Recibí tu mensaje, pero no obtuve una respuesta clara del asistente.', 'bot');
-                    }
-                } else {
-                    addMessage('Lo siento, hubo un problema al procesar tu mensaje. Inténtalo de nuevo.', 'bot');
-                }
-            } catch (error) {
-                // Eliminar el indicador de escritura
-                chatBox.removeChild(typingIndicator);
-                
-                console.error('Error al enviar mensaje:', error);
-                addMessage('Lo siento, hubo un error de conexión. Inténtalo de nuevo.', 'bot');
-            }
+            setTimeout(() => { addMessage("Gracias por tu mensaje: " + message, 'bot'); }, 500);
         }
 
         function addMessage(text, sender) {
             const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${sender}-message`;
+            messageDiv.className = message ${sender}-message;
             messageDiv.textContent = text;
             chatBox.appendChild(messageDiv);
             chatBox.scrollTop = chatBox.scrollHeight;
-            return messageDiv;
         }
 
         textInput.addEventListener('keypress', function(e) {
