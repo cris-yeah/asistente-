@@ -1,6 +1,4 @@
-
-  
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -322,7 +320,7 @@
         </div>
         
         <div class="chat-box" id="chatBox">
-            <div class="message bot-message">¡Hola! Soy Eros. Escribe tu mensaje abajo.</div>
+            <div class="message bot-message">¡Hola! Soy Eros, tu asistente de apoyo emocional. ¿En qué puedo ayudarte hoy?</div>
         </div>
         
         <div class="input-area">
@@ -339,12 +337,59 @@
         const helpButton = document.getElementById('helpButton');
         const helpPanel = document.getElementById('helpPanel');
 
-        function sendMessage() {
+        // ✅ TU URL DE N8N INTEGRADA
+        const N8N_WEBHOOK_URL = 'https://cristian31150.app.n8n.cloud/webhook-test/03e4afb6-a518-41a5-9398-d9c5655d4128';
+
+        async function sendMessage() {
             const message = textInput.value.trim();
             if (message === '') return;
+            
+            // Mostrar mensaje del usuario
             addMessage(message, 'user');
             textInput.value = '';
-            setTimeout(() => { addMessage("Gracias por tu mensaje: " + message, 'bot'); }, 500);
+            
+            // Mostrar indicador de typing
+            showTypingIndicator();
+            
+            try {
+                console.log('Enviando mensaje a n8n:', message);
+                
+                // Enviar mensaje a n8n
+                const response = await fetch(N8N_WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: message,
+                        timestamp: new Date().toISOString(),
+                        user: 'usuario_web'
+                    })
+                });
+
+                console.log('Respuesta recibida, status:', response.status);
+
+                if (!response.ok) {
+                    throw new Error(Error HTTP: ${response.status});
+                }
+
+                const data = await response.json();
+                console.log('Datos recibidos:', data);
+                
+                // Ocultar indicador de typing
+                hideTypingIndicator();
+                
+                // Mostrar respuesta del bot - ajusta según la estructura de tu IA
+                const botResponse = data.response || data.message || data.answer || 
+                                   "Gracias por tu mensaje. Estoy procesando tu solicitud.";
+                
+                addMessage(botResponse, 'bot');
+                
+            } catch (error) {
+                console.error('Error en la conexión:', error);
+                hideTypingIndicator();
+                addMessage("Lo siento, hubo un error al conectar con el asistente. Por favor intenta nuevamente.", 'bot');
+            }
         }
 
         function addMessage(text, sender) {
@@ -355,6 +400,25 @@
             chatBox.scrollTop = chatBox.scrollHeight;
         }
 
+        function showTypingIndicator() {
+            const typingDiv = document.createElement('div');
+            typingDiv.id = 'typingIndicator';
+            typingDiv.className = 'message bot-message';
+            typingDiv.innerHTML = '<em>Eros está escribiendo...</em>';
+            typingDiv.style.opacity = '0.7';
+            typingDiv.style.fontStyle = 'italic';
+            chatBox.appendChild(typingDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function hideTypingIndicator() {
+            const typingDiv = document.getElementById('typingIndicator');
+            if (typingDiv) {
+                typingDiv.remove();
+            }
+        }
+
+        // Event listeners
         textInput.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') sendMessage();
         });
@@ -368,7 +432,7 @@
 
         function copyNumber(number) {
             navigator.clipboard.writeText(number).then(function() {
-                addMessage("Número copiado: " + number, 'bot');
+                addMessage(Número copiado al portapapeles: ${number}, 'bot');
                 helpPanel.classList.remove('open');
             });
         }
@@ -383,3 +447,6 @@
     </script>
 </body>
 </html>
+  
+ 
+     
